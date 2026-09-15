@@ -5,17 +5,17 @@
 為了解決日常煮飯的煩惱，本專題開發了一款名為「冰箱食材管家」的工具。使用者只需提供照片或是文字，系統便會利用訓練好的模型判斷圖片中所含的食材類別，並結合資料集查詢對應的食譜，最後將結果透過 LINE Bot 顯示給使用者。
 
 ### 開發階段核心技術對應檔案
-1. **模型訓練與影像辨識**：YOLO 模型建置與推論 ➔ `yolo_code.ipynb`, `data.yaml`, `best.pt`
-2. **系統後端與通訊串接**：Flask 伺服器與 LINE Messaging API ➔ `line_bot_code.ipynb`
-3. **資料前處理與資料庫**：食譜資料清洗、比對與建置 ➔ `data_preprocessing.ipynb`, `data.csv`
-4. **專題成果與報告**：完整概念提報簡報 ➔ `Presentation_Slides.pdf`
+1. **模型訓練與影像辨識**：YOLO 模型建置與推論 ➔ [`yolo_code.ipynb`](./yolo_code.ipynb), [`data.yaml`](./data.yaml), [`best.pt`](./best.pt)
+2. **系統後端與通訊串接**：Flask 伺服器與 LINE Messaging API ➔ [`line_bot_code.ipynb`](./line_bot_code.ipynb)
+3. **資料前處理與資料庫**：食譜資料清洗、比對與建置 ➔ [`data_preprocessing.ipynb`](./data_preprocessing.ipynb), [`data.csv`](./data.csv)
+4. **專題成果與報告**：完整概念提報簡報 ➔ [`Presentation_Slides.pdf`](./Presentation_Slides.pdf)
 
 ## 專題簡介
 本專題 (Refrigerator Consultant) 旨在幫助使用者解決「冰箱災難 (disaster from refrigerator)」。結合電腦視覺與通訊軟體，打造一個能快速辨識手邊現有食材、並立即提供料理步驟的智慧助理。
 
 ## 核心功能與實作設計
 系統提供兩種主要互動模式來解決使用者的需求：
-* **圖片辨識 **：使用者提供一張包含食材的照片，系統透過模型預測後，回傳包含 `title` (食譜名稱)、`ingredients` (所需食材) 與 `directions` (製作步驟) 的詳細食譜。
+* **圖片辨識**：使用者提供一張包含食材的照片，系統透過模型預測後，回傳包含 `title` (食譜名稱)、`ingredients` (所需食材) 與 `directions` (製作步驟) 的詳細食譜。
 * **文字輸入**：使用者直接輸入食材關鍵字，系統比對資料庫後同樣回傳完整的食譜資訊。
 
 ## 模型訓練與方法
