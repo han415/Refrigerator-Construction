@@ -83,3 +83,226 @@
                       │
                       ▼
                  LINE Response
+```
+
+---
+
+## 資料集與前處理
+
+本專題的資料主要分為 **食材影像資料**與**食譜資料**兩部分。
+
+### 食材影像資料
+
+使用食材影像資料訓練 YOLO 物件偵測模型，目前包含 6 種食材：
+
+| Class         | 食材  |
+| :------------ | :-- |
+| `egg`         | 雞蛋  |
+| `tomato`      | 番茄  |
+| `onion`       | 洋蔥  |
+| `cauliflower` | 花椰菜 |
+| `cabbage`     | 高麗菜 |
+| `shrimp`      | 蝦子  |
+
+每種食材約準備 500 張影像進行模型訓練。以下為 YOLO 模型的辨識類別與實際偵測結果展示：
+
+![YOLO 辨識類別與成效](./Img/yolo_classes.png)
+
+### 食譜資料
+
+使用 Pandas 對食譜資料進行前處理，整理食譜名稱、食材與料理步驟等資訊，並建立後續食材搜尋與推薦所需的資料格式。
+
+主要欄位包含：
+
+* `title` — 食譜名稱
+* `ingredients` — 所需食材
+* `directions` — 製作步驟
+
+---
+
+## 方法
+
+### 1. Data Preprocessing
+
+首先對食譜資料進行清理與格式整理，將食材資訊轉換成適合搜尋與比對的格式。
+
+透過食材關鍵字與食譜內容進行比對，使模型辨識結果可以進一步轉換為食譜搜尋條件。
+
+相關程式：
+[`data_preprocessing.ipynb`](./data_preprocessing.ipynb)
+
+---
+
+### 2. YOLO Object Detection
+
+本專題使用 **YOLO** 進行食材物件偵測。
+與單純的圖片分類不同，物件偵測可以同時取得食材類別、Bounding Box 與 Confidence Score，因此一張照片中可以同時辨識多種食材。
+
+模型相關檔案：
+* [`yolo_code.ipynb`](./yolo_code.ipynb) — YOLO 模型訓練與推論
+* [`data.yaml`](./data.yaml) — Dataset 設定
+* [`best.pt`](./best.pt) — 訓練完成的模型權重
+
+---
+
+### 3. Recipe Recommendation
+
+取得 YOLO 辨識結果後，系統將食材類別轉換為食譜搜尋條件，並從食譜資料集中搜尋符合的料理，最後將搜尋結果整理成適合 LINE Bot 顯示的文字內容。
+
+---
+
+### 4. LINE Bot Integration
+
+使用 **Flask** 建立後端服務，並透過 **LINE Messaging API** 接收與回傳使用者訊息。開發與測試期間使用 **ngrok** 將本機 Flask Server 暴露至外部，使 LINE Webhook 能夠連接本地端服務。
+
+相關程式：
+[`line_bot_code.ipynb`](./line_bot_code.ipynb)
+
+---
+
+## 實作成果
+
+系統完成後，可以透過 LINE Bot 直接進行兩種模式的食材辨識與食譜查詢：
+
+### 1. 食材影像辨識與推薦
+使用者上傳包含多樣食材的照片後，YOLO 模型會自動偵測圖片中的不同物件。例如模型辨識出高麗菜與番茄後，會將標籤轉換為 `['cabbage', 'tomato']`，並迅速回傳完整的《Fried Cabbage》食譜資訊。
+
+![圖片辨識實作展示](./Img/image_input_demo.png)
+
+### 2. 文字輸入與推薦
+若使用者手邊暫時無法拍照，也可以直接輸入食材關鍵字（例如 `egg`），系統同樣會啟動搜尋模組，即時回傳對應的食譜名稱、所需材料與製作步驟。
+
+![文字輸入實作展示](./Img/text_input_demo.png)
+
+---
+
+## 系統操作流程
+
+```text
+┌─────────────────────┐
+│  使用者傳送圖片/文字  │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│    LINE Messaging   │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Flask Backend     │
+└──────────┬──────────┘
+           │
+       ┌───┴────┐
+       │        │
+     Image     Text
+       │        │
+       ▼        ▼
+     YOLO     Keyword
+   Detection   Search
+       │        │
+       └───┬────┘
+           ▼
+┌─────────────────────┐
+│   Recipe Matching   │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Recipe Information │
+│ Title / Ingredients │
+│ / Directions        │
+└──────────┬──────────┘
+           │
+           ▼
+       LINE Bot
+```
+
+---
+
+## 開發過程與分析
+
+本專題的開發主要分為 **影像辨識、資料處理與系統整合**三個部分。
+
+首先建立食材影像資料集並訓練 YOLO 模型，使系統可以從使用者提供的照片中取得食材類別。接著進行食譜資料前處理，將食材資訊與食譜內容整理成適合搜尋的格式。最後使用 Flask 建立後端服務，並串接 LINE Messaging API。
+
+在實際測試過程中，發現多食材同時出現在圖片中時，辨識結果可能受到**食材遮擋、拍攝角度、圖片背景與食材外觀差異**影響，因此多食材辨識與推薦結果仍有進一步改善的空間。
+
+---
+
+## 未來發展
+
+目前系統主要支援 6 種食材，未來希望從以下方向進行擴充：
+
+* 增加可辨識的食材種類與擴充食譜資料集
+* 提升多食材同時辨識的準確度
+* 根據使用者擁有的多種食材進行更精準的綜合食譜推薦
+* 加入食材庫存、保存期限管理與營養資訊
+* 將模型部署至雲端或邊緣裝置
+
+---
+
+## 使用技術
+
+| 類別               | 技術                 |
+| :--------------- | :----------------- |
+| Programming      | Python             |
+| Object Detection | YOLO               |
+| Backend          | Flask              |
+| Messaging        | LINE Messaging API |
+| Data Processing  | Pandas             |
+| Image Processing | OpenCV             |
+| Local Server     | ngrok              |
+
+---
+
+## 專案結構
+
+```text
+Refrigerator-Construction/
+│
+├── yolo_code.ipynb
+├── line_bot_code.ipynb
+├── data_preprocessing.ipynb
+│
+├── Img/
+│   ├── yolo_classes.png
+│   ├── image_input_demo.png
+│   └── text_input_demo.png
+│
+├── data.yaml
+├── best.pt
+├── data.csv
+│
+├── Presentation_Slides.pdf
+│
+└── README.md
+```
+
+---
+
+## 個人貢獻
+
+在本次三人團隊專題中，我主要負責／參與以下工作：
+
+* **模型建置與訓練**：負責 YOLO 食材物件偵測模型的資料準備、訓練與推論測試。
+* **資料處理**：使用 Pandas 整理食譜資料，進行資料清理與食材關鍵字比對。
+* **系統整合**：協助 Flask Backend、YOLO 模型與 LINE Messaging API 的整合。
+* **功能測試**：測試圖片辨識、文字輸入與食譜推薦流程。
+* **專案整理**：整理程式碼、模型與資料檔案，建立 GitHub Repository。
+
+---
+
+## 專題資訊
+
+**專題名稱：** 冰箱食材管家（Refrigerator Consultant）
+
+**英文名稱：** Refrigerator Consultant
+
+**課程：** 人工智慧應用實驗(二)
+
+**專題成員：**
+
+* 黃妤涵
+* 繆語
+* 李佩臻
