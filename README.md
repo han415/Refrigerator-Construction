@@ -195,7 +195,7 @@ directions
 
 系統支援兩種主要互動方式：
 
-#### 📷 Image Input
+####  Image Input
 
 ```text
 User
@@ -211,7 +211,7 @@ Recipe Search
 LINE Response
 ```
 
-#### 💬 Text Input
+####  Text Input
 
 ```text
 User
