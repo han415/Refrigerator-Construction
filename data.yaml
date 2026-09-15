@@ -1,0 +1,10 @@
+train: C:\Users\clair\OneDrive\Desktop\李佩臻_期中報告\images\train
+val: C:\Users\clair\OneDrive\Desktop\李佩臻_期中報告\images\val
+test: C:\Users\clair\OneDrive\Desktop\李佩臻_期中報告\images\test
+
+nc: 6
+
+names: ["tomato","egg","shrimp","cauliflower","onion","cabbage"]
+
+
+
